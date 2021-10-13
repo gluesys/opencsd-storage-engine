@@ -320,12 +320,12 @@ int ha_keti::write_row(uchar *) {
   printf("[C] recvbuf \"%s\"\n", recvbuf);
 
   if (strcmp(recvbuf,"success") != 0) { 
-    DBUG_RETURN(-1);
+    return -1;
   }
 
   // close(client_sockfd);
 
-  row_count++;
+  //row_count++;
   return 0;
 }
 
