@@ -287,6 +287,45 @@ int ha_keti::write_row(uchar *) {
     probably need to do something with 'buf'. We report a success
     here, to pretend that the insert was successful.
   */
+ int client_sockfd;
+  client_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (client_sockfd == -1) { perror("[C] socket"); return -1; }
+  printf("[C] socket\n");
+
+  /* set client_sockaddr */
+  struct sockaddr_in client_sockaddr;
+  memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
+  client_sockaddr.sin_family      = AF_INET;
+  client_sockaddr.sin_port        = htons(8188);
+  inet_pton(AF_INET, "10.0.5.101", &client_sockaddr.sin_addr.s_addr);
+
+  /* connect */
+  printf("[C] connect\n");
+  int ret = connect(client_sockfd, (struct sockaddr *)&client_sockaddr, sizeof(struct sockaddr_in));
+  if (ret == -1) { perror("[C] connect"); return -1; }
+
+  /* send */
+  printf("[C] send\n");
+  int writelen;
+  writelen = send(client_sockfd, "w", 1, 0);
+  writelen = send(client_sockfd, (char*)buf, table->s->reclength, 0);
+  
+
+  /* recv */
+  char recvbuf[20];
+  int readlen;
+  readlen = recv(client_sockfd, recvbuf, sizeof(recvbuf), 0);
+  if (readlen < 1) { perror("[C] recv"); return -1; }
+  printf("[C] recv\n");
+  printf("[C] recvbuf \"%s\"\n", recvbuf);
+
+  if (strcmp(recvbuf,"success") != 0) { 
+    DBUG_RETURN(-1);
+  }
+
+  // close(client_sockfd);
+
+  row_count++;
   return 0;
 }
 
@@ -430,147 +469,147 @@ int ha_keti::index_last(uchar *) {
   filesort.cc, records.cc, sql_handler.cc, sql_select.cc, sql_table.cc and
   sql_update.cc
 */
-// static void display_functype( int type)
-// {
-//     const char *strFuncType[] = { "UNKNOWN_FUNC",
-//             "EQ_FUNC", "EQUAL_FUNC", "NE_FUNC", "LT_FUNC",
-//             "LE_FUNC", "GE_FUNC", "GT_FUNC", "FT_FUNC",
-//             "LIKE_FUNC", "ISNULL_FUNC", "ISNOTNULL_FUNC", "COND_AND_FUNC",
-//             "COND_OR_FUNC", "COND_XOR_FUNC", "BETWEEN", "IN_FUNC",
-//             "MULT_EQUAL_FUNC", "INTERVAL_FUNC", "ISNOTNULLTEST_FUNC", "SP_EQUALS_FUNC",
-//             "SP_DISJOINT_FUNC", "SP_INTERSECTS_FUNC", "SP_TOUCHES_FUNC", "SP_CROSSES_FUNC",
-//             "SP_WITHIN_FUNC", "SP_CONTAINS_FUNC", "SP_OVERLAPS_FUNC", "SP_STARTPOINT",
-//             "SP_ENDPOINT", "SP_EXTERIORRING", "SP_POINTN", "SP_GEOMETRYN",
-//             "SP_INTERIORRINGN", "NOT_FUNC", "NOT_ALL_FUNC", "NOW_FUNC",
-//             "TRIG_COND_FUNC", "SUSERVAR_FUNC", "GUSERVAR_FUNC", "COLLATE_FUNC",
-//             "EXTRACT_FUNC", "CHAR_TYPECAST_FUNC", "FUNC_SP", "UDF_FUNC",
-//             "NEG_FUNC", "GSYSVAR_FUNC" };
+static void display_functype( int type)
+{
+    const char *strFuncType[] = { "UNKNOWN_FUNC",
+            "EQ_FUNC", "EQUAL_FUNC", "NE_FUNC", "LT_FUNC",
+            "LE_FUNC", "GE_FUNC", "GT_FUNC", "FT_FUNC",
+            "LIKE_FUNC", "ISNULL_FUNC", "ISNOTNULL_FUNC", "COND_AND_FUNC",
+            "COND_OR_FUNC", "COND_XOR_FUNC", "BETWEEN", "IN_FUNC",
+            "MULT_EQUAL_FUNC", "INTERVAL_FUNC", "ISNOTNULLTEST_FUNC", "SP_EQUALS_FUNC",
+            "SP_DISJOINT_FUNC", "SP_INTERSECTS_FUNC", "SP_TOUCHES_FUNC", "SP_CROSSES_FUNC",
+            "SP_WITHIN_FUNC", "SP_CONTAINS_FUNC", "SP_OVERLAPS_FUNC", "SP_STARTPOINT",
+            "SP_ENDPOINT", "SP_EXTERIORRING", "SP_POINTN", "SP_GEOMETRYN",
+            "SP_INTERIORRINGN", "NOT_FUNC", "NOT_ALL_FUNC", "NOW_FUNC",
+            "TRIG_COND_FUNC", "SUSERVAR_FUNC", "GUSERVAR_FUNC", "COLLATE_FUNC",
+            "EXTRACT_FUNC", "CHAR_TYPECAST_FUNC", "FUNC_SP", "UDF_FUNC",
+            "NEG_FUNC", "GSYSVAR_FUNC" };
 
-//     fprintf(stderr, "type=[%s]\t", strFuncType[type]);
-// }
+    fprintf(stderr, "type=[%s]\t", strFuncType[type]);
+}
 const Item *ha_keti::cond_push(const Item *cond,
                                 bool other_tbls_ok MY_ATTRIBUTE((unused)))
 {
-  DBUG_ENTER("ha_keti::cond_push");
+  //DBUG_ENTER("ha_keti::cond_push");
   
-  // Item * tempCond = const_cast<Item*>(cond);
+  Item * tempCond = const_cast<Item*>(cond);
 
-  //   if ( cond == NULL )
-  //       return NULL;
+    if ( cond == NULL )
+        return NULL;
 
-  //   //fprintf(stderr, "\ntable_name = <%s>\t<%s>\n", table_share->table_name.str, current_thd->query());
-  //   int level = 0;
-  //   DBUG_PRINT("kchdebug", ("\n"));
-  //    while ( tempCond->next_free != NULL)
-  //   {
-  //       DBUG_PRINT("kchdebug", ("level=%d ", level));
-  //       switch( tempCond->type() )
-  //       {
-  //           case Item::FIELD_ITEM:
-  //               DBUG_PRINT("kchdebug", ("FIELD-ITEM"));
-  //               DBUG_PRINT("kchdebug", ("\t[%s] [%s] [%s]",((Item_field*)tempCond)->db_name, ((Item_field*)tempCond)->table_name, ((Item_field*)tempCond)->field_name));
-  //               break;
-  //           case Item::FUNC_ITEM:
-  //               DBUG_PRINT("kchdebug", ("FUNC-ITEM"));
-  //               DBUG_PRINT("kchdebug", ("=[%s]", ((Item_func*)tempCond)->func_name()));
-  //               DBUG_PRINT("kchdebug", (" args: %d  ", ((Item_func*)tempCond)->argument_count() ));
-  //               display_functype( (int)((Item_func*)tempCond)->functype());
-  //               break;
-  //           case Item::SUM_FUNC_ITEM:
-  //               DBUG_PRINT("kchdebug", ("SUM-FUNC--ITEM"));
-  //               break;
-  //           case Item::STRING_ITEM:
-  //               DBUG_PRINT("kchdebug", ("STRING-ITEM"));
-  //               break;
-  //           case Item::INT_ITEM:
-  //               DBUG_PRINT("kchdebug", ("INT-ITEM"));
-  //               DBUG_PRINT("kchdebug", ("\tval = %lld", ((Item_int*)tempCond)->value));
-  //               DBUG_PRINT("kchdebug", (" res=%d", ((Item_int*)tempCond)->result_type()));
-  //               break;
-  //           case Item::REAL_ITEM:
-  //               DBUG_PRINT("kchdebug", ("REAL-ITEM"));
-  //               break;
-  //           case Item::NULL_ITEM:
-  //               DBUG_PRINT("kchdebug", ("NULL-ITEM"));
-  //               break;
-  //           case Item::VARBIN_ITEM:
-  //               DBUG_PRINT("kchdebug", ("VAR-BIN"));
-  //                break;
-  //           case Item::COPY_STR_ITEM:
-  //               DBUG_PRINT("kchdebug", ("COPY-STR-ITEM"));
-  //               break;
-  //           case Item::FIELD_AVG_ITEM:
-  //               DBUG_PRINT("kchdebug", ("FIELD-AVG-ITEM"));
-  //               break;
-  //           case Item::DEFAULT_VALUE_ITEM:
-  //               DBUG_PRINT("kchdebug", ("DEFAULT-VLAUE-ITEM"));
-  //               break;
-  //           case Item::PROC_ITEM:
-  //               DBUG_PRINT("kchdebug", ("PROC-ITEM"));
-  //               break;
-  //           case Item::COND_ITEM:
-  //               DBUG_PRINT("kchdebug", ("COND-ITEM"));
-  //               DBUG_PRINT("kchdebug", (" args: %d  ", ((Item_cond*)tempCond)->argument_count() ));
-  //               display_functype( (int)((Item_cond*)tempCond)->functype());
-  //               break;
-  //           case Item::REF_ITEM:
-  //               DBUG_PRINT("kchdebug", ("REF-ITEM"));
-  //               break;
-  //           case Item::FIELD_STD_ITEM:
-  //               DBUG_PRINT("kchdebug", ("FIELD-STD-ITEM"));
-  //               break;
-  //           case Item::FIELD_VARIANCE_ITEM:
-  //               DBUG_PRINT("kchdebug", ("FIELD-VAIRANCE-ITEM"));
-  //               break;
-  //           case Item::INSERT_VALUE_ITEM:
-  //               DBUG_PRINT("kchdebug", ("INSERT-VALUE-ITEM"));
-  //               break;
-  //           case Item::SUBSELECT_ITEM:
-  //               DBUG_PRINT("kchdebug", ("SUBSELECT-ITEM"));
-  //               break;
-  //           case Item::ROW_ITEM:
-  //               DBUG_PRINT("kchdebug", ("ROW-ITEM"));
-  //               break;
-  //           case Item::CACHE_ITEM:
-  //               DBUG_PRINT("kchdebug", ("CACHE-ITEM"));
-  //               break;
-  //           case Item::TYPE_HOLDER:
-  //               DBUG_PRINT("kchdebug", ("TYPE-HOLDER"));
-  //               break;
-  //           case Item::PARAM_ITEM:
-  //               DBUG_PRINT("kchdebug", ("PARAM-ITEM"));
-  //               break;
-  //           case Item::TRIGGER_FIELD_ITEM:
-  //               DBUG_PRINT("kchdebug", ("TRIGGER-FIELD-ITEM"));
-  //               break;
-  //           case Item::DECIMAL_ITEM:
-  //               DBUG_PRINT("kchdebug", ("DECIMAL-ITEM"));
-  //               break;
-  //           case Item::XPATH_NODESET:
-  //               DBUG_PRINT("kchdebug", ("XPATH-NODESET"));
-  //               break;
-  //           case Item::XPATH_NODESET_CMP:
-  //               DBUG_PRINT("kchdebug", ("XPATH-NODESET-CMP"));
-  //               break;
-  //           case Item::VIEW_FIXER_ITEM:
-  //               DBUG_PRINT("kchdebug", ("VIEW-FIXER-ITEM"));
-  //               break;
-  //           default:
-  //               DBUG_PRINT("kchdebug", ("unknown: %d ",  tempCond->type()));
-  //               break;
-  //       }
-  //       String* vStr = NULL;
+    //fprintf(stderr, "\ntable_name = <%s>\t<%s>\n", table_share->table_name.str, current_thd->query().str);
+    int level = 0;
+    //DBUG_PRINT("kchdebug", ("\n"));
+     while ( tempCond->next_free != NULL)
+    {
+        //DBUG_PRINT("kchdebug", ("level=%d ", level));
+        switch( tempCond->type() )
+        {
+            case Item::FIELD_ITEM:
+                DBUG_PRINT("kchdebug", ("FIELD-ITEM"));
+                DBUG_PRINT("kchdebug", ("\t[%s] [%s] [%s]",((Item_field*)tempCond)->db_name, ((Item_field*)tempCond)->table_name, ((Item_field*)tempCond)->field_name));
+                break;
+            case Item::FUNC_ITEM:
+                DBUG_PRINT("kchdebug", ("FUNC-ITEM"));
+                DBUG_PRINT("kchdebug", ("=[%s]", ((Item_func*)tempCond)->func_name()));
+                DBUG_PRINT("kchdebug", (" args: %d  ", ((Item_func*)tempCond)->argument_count() ));
+                display_functype( (int)((Item_func*)tempCond)->functype());
+                break;
+            case Item::SUM_FUNC_ITEM:
+                DBUG_PRINT("kchdebug", ("SUM-FUNC--ITEM"));
+                break;
+            case Item::STRING_ITEM:
+                DBUG_PRINT("kchdebug", ("STRING-ITEM"));
+                break;
+            case Item::INT_ITEM:
+                DBUG_PRINT("kchdebug", ("INT-ITEM"));
+                DBUG_PRINT("kchdebug", ("\tval = %lld", ((Item_int*)tempCond)->value));
+                DBUG_PRINT("kchdebug", (" res=%d", ((Item_int*)tempCond)->result_type()));
+                break;
+            case Item::REAL_ITEM:
+                DBUG_PRINT("kchdebug", ("REAL-ITEM"));
+                break;
+            case Item::NULL_ITEM:
+                DBUG_PRINT("kchdebug", ("NULL-ITEM"));
+                break;
+            case Item::VARBIN_ITEM:
+                DBUG_PRINT("kchdebug", ("VAR-BIN"));
+                 break;
+            case Item::COPY_STR_ITEM:
+                DBUG_PRINT("kchdebug", ("COPY-STR-ITEM"));
+                break;
+            case Item::FIELD_AVG_ITEM:
+                DBUG_PRINT("kchdebug", ("FIELD-AVG-ITEM"));
+                break;
+            case Item::DEFAULT_VALUE_ITEM:
+                DBUG_PRINT("kchdebug", ("DEFAULT-VLAUE-ITEM"));
+                break;
+            case Item::PROC_ITEM:
+                DBUG_PRINT("kchdebug", ("PROC-ITEM"));
+                break;
+            case Item::COND_ITEM:
+                DBUG_PRINT("kchdebug", ("COND-ITEM"));
+                DBUG_PRINT("kchdebug", (" args: %d  ", ((Item_cond*)tempCond)->argument_count() ));
+                display_functype( (int)((Item_cond*)tempCond)->functype());
+                break;
+            case Item::REF_ITEM:
+                DBUG_PRINT("kchdebug", ("REF-ITEM"));
+                break;
+            case Item::FIELD_STD_ITEM:
+                DBUG_PRINT("kchdebug", ("FIELD-STD-ITEM"));
+                break;
+            case Item::FIELD_VARIANCE_ITEM:
+                DBUG_PRINT("kchdebug", ("FIELD-VAIRANCE-ITEM"));
+                break;
+            case Item::INSERT_VALUE_ITEM:
+                DBUG_PRINT("kchdebug", ("INSERT-VALUE-ITEM"));
+                break;
+            case Item::SUBSELECT_ITEM:
+                DBUG_PRINT("kchdebug", ("SUBSELECT-ITEM"));
+                break;
+            case Item::ROW_ITEM:
+                DBUG_PRINT("kchdebug", ("ROW-ITEM"));
+                break;
+            case Item::CACHE_ITEM:
+                DBUG_PRINT("kchdebug", ("CACHE-ITEM"));
+                break;
+            case Item::TYPE_HOLDER:
+                DBUG_PRINT("kchdebug", ("TYPE-HOLDER"));
+                break;
+            case Item::PARAM_ITEM:
+                DBUG_PRINT("kchdebug", ("PARAM-ITEM"));
+                break;
+            case Item::TRIGGER_FIELD_ITEM:
+                DBUG_PRINT("kchdebug", ("TRIGGER-FIELD-ITEM"));
+                break;
+            case Item::DECIMAL_ITEM:
+                DBUG_PRINT("kchdebug", ("DECIMAL-ITEM"));
+                break;
+            case Item::XPATH_NODESET:
+                DBUG_PRINT("kchdebug", ("XPATH-NODESET"));
+                break;
+            case Item::XPATH_NODESET_CMP:
+                DBUG_PRINT("kchdebug", ("XPATH-NODESET-CMP"));
+                break;
+            case Item::VIEW_FIXER_ITEM:
+                DBUG_PRINT("kchdebug", ("VIEW-FIXER-ITEM"));
+                break;
+            default:
+                DBUG_PRINT("kchdebug", ("unknown: %d ",  tempCond->type()));
+                break;
+        }
+        //String* vStr = NULL;
         
-  //       if (tempCond->val_str(vStr) != NULL )
-  //           DBUG_PRINT("kchdebug", ("\tstr_value=<%s>", vStr->c_ptr()));
-  //       if ( tempCond->item_name.ptr() != NULL )
-  //           DBUG_PRINT("kchdebug", ("\tname=<%s>", tempCond->item_name.ptr()));
-  //       level++;
-  //       tempCond=tempCond->next_free;
-  //       DBUG_PRINT("kchdebug", ("\n"));
-  //   }
-  //   DBUG_PRINT("kchdebug", ("\n"));
-  //   //return cond;
+        // if (tempCond->val_str(vStr) != NULL )
+        //     DBUG_PRINT("kchdebug", ("\tstr_value=<%s>", vStr->c_ptr()));
+        // if ( tempCond->item_name.ptr() != NULL )
+        //     DBUG_PRINT("kchdebug", ("\tname=<%s>", tempCond->item_name.ptr()));
+        level++;
+        tempCond=tempCond->next_free;
+        DBUG_PRINT("kchdebug", ("\n"));
+    }
+    DBUG_PRINT("kchdebug", ("\n"));
+    return cond;
 
   DBUG_RETURN(cond);
 }
