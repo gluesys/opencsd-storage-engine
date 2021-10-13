@@ -656,6 +656,25 @@ int ha_keti::rnd_end() {
 int ha_keti::rnd_next(uchar *) {
   int rc;
   DBUG_TRACE;
+  
+  /* send */
+  printf("[C] send\n");
+  int writelen;
+  writelen = send(client_sockfd, "r", 1, 0);
+ 
+
+  /* recv */
+
+  int readlen;
+  readlen = recv(client_sockfd, buf, table->s->reclength, 0);
+  if (readlen < 1) { perror("[C] recv"); return -1; }
+  printf("[C] recv\n");
+  printf("[C] recvbuf \"%s\"\n", buf);
+
+  if (strcmp(buf,"success") != 0) { 
+    DBUG_RETURN(-1);
+  }
+  
   rc = HA_ERR_END_OF_FILE;
   return rc;
 }
