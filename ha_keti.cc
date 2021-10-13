@@ -671,8 +671,8 @@ int ha_keti::rnd_next(uchar *buf) {
   printf("[C] recv\n");
   printf("[C] recvbuf \"%s\"\n", buf);
 
-  if (strcmp(constbuf,"success") != 0) { 
-    DBUG_RETURN(-1);
+  if (strcmp(const_cast<char*>((char*)buf),"success") != 0) { 
+    return -1;
   }
   
   rc = HA_ERR_END_OF_FILE;
