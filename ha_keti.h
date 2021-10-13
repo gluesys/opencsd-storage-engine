@@ -64,6 +64,7 @@ class ha_keti : public handler {
   THR_LOCK_DATA lock;          ///< MySQL lock
   Example_share *share;        ///< Shared lock info
   Example_share *get_share();  ///< Get the share
+  int client_sockfd;
 
  public:
   ha_keti(handlerton *hton, TABLE_SHARE *table_arg);
