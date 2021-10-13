@@ -279,7 +279,7 @@ int ha_keti::close(void) {
   sql_insert.cc, sql_select.cc, sql_table.cc, sql_udf.cc and sql_update.cc
 */
 
-int ha_keti::write_row(uchar *) {
+int ha_keti::write_row(uchar *buf) {
   DBUG_TRACE;
   /*
     Example of a successful write_row. We don't store the data
