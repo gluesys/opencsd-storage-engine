@@ -611,7 +611,7 @@ const Item *ha_keti::cond_push(const Item *cond,
     DBUG_PRINT("kchdebug", ("\n"));
     return cond;
 
-  DBUG_RETURN(cond);
+  return cond;
 }
 int ha_keti::rnd_init(bool) {
   DBUG_TRACE;
