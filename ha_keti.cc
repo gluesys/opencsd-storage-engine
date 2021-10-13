@@ -653,10 +653,10 @@ int ha_keti::rnd_end() {
   filesort.cc, records.cc, sql_handler.cc, sql_select.cc, sql_table.cc and
   sql_update.cc
 */
-int ha_keti::rnd_next(uchar *) {
+int ha_keti::rnd_next(uchar *buf) {
   int rc;
   DBUG_TRACE;
-  
+
   /* send */
   printf("[C] send\n");
   int writelen;
@@ -671,7 +671,7 @@ int ha_keti::rnd_next(uchar *) {
   printf("[C] recv\n");
   printf("[C] recvbuf \"%s\"\n", buf);
 
-  if (strcmp(buf,"success") != 0) { 
+  if (strcmp(constbuf,"success") != 0) { 
     DBUG_RETURN(-1);
   }
   
