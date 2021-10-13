@@ -451,7 +451,7 @@ static void display_functype( int type)
 const Item *ha_keti::cond_push(const Item *cond,
                                 bool other_tbls_ok MY_ATTRIBUTE((unused)))
 {
-  DBUG_ENTER("ha_keti::cond_push");
+  //DBUG_ENTER("ha_keti::cond_push");
   
   Item * tempCond = const_cast<Item*>(cond);
 
@@ -460,10 +460,10 @@ const Item *ha_keti::cond_push(const Item *cond,
 
     //fprintf(stderr, "\ntable_name = <%s>\t<%s>\n", table_share->table_name.str, current_thd->query().str);
     int level = 0;
-    DBUG_PRINT("kchdebug", ("\n"));
+    //DBUG_PRINT("kchdebug", ("\n"));
      while ( tempCond->next_free != NULL)
     {
-        DBUG_PRINT("kchdebug", ("level=%d ", level));
+        //DBUG_PRINT("kchdebug", ("level=%d ", level));
         switch( tempCond->type() )
         {
             case Item::FIELD_ITEM:
