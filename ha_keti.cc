@@ -615,6 +615,21 @@ const Item *ha_keti::cond_push(const Item *cond,
 }
 int ha_keti::rnd_init(bool) {
   DBUG_TRACE;
+  client_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (client_sockfd == -1) { perror("[C] socket"); return -1; }
+  printf("[C] socket\n");
+
+  /* set client_sockaddr */
+  struct sockaddr_in client_sockaddr;
+  memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
+  client_sockaddr.sin_family      = AF_INET;
+  client_sockaddr.sin_port        = htons(8188);
+  inet_pton(AF_INET, "10.0.5.101", &client_sockaddr.sin_addr.s_addr);
+
+  /* connect */
+  printf("[C] connect\n");
+  int ret = connect(client_sockfd, (struct sockaddr *)&client_sockaddr, sizeof(struct sockaddr_in));
+  if (ret == -1) { perror("[C] connect"); return -1; }
   return 0;
 }
 
