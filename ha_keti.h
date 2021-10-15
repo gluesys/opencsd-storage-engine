@@ -64,7 +64,6 @@ class ha_keti : public handler {
   THR_LOCK_DATA lock;          ///< MySQL lock
   Example_share *share;        ///< Shared lock info
   Example_share *get_share();  ///< Get the share
-  int client_sockfd;
 
  public:
   ha_keti(handlerton *hton, TABLE_SHARE *table_arg);
@@ -263,9 +262,7 @@ class ha_keti : public handler {
   int create(const char *name, TABLE *form, HA_CREATE_INFO *create_info,
              dd::Table *table_def);  ///< required
 
-  const Item *cond_push(const Item *cond,
-                                bool other_tbls_ok MY_ATTRIBUTE((unused)));
-
   THR_LOCK_DATA **store_lock(THD *thd, THR_LOCK_DATA **to,
                              enum thr_lock_type lock_type);  ///< required
 };
+
