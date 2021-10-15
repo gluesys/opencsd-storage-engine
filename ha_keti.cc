@@ -311,6 +311,11 @@ void GetHttpAsync()
   }).wait();
  
 }
+void GetJson()
+{
+
+ 
+}
 int ha_keti::write_row(uchar *) {
   DBUG_TRACE;
   /*
