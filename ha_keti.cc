@@ -301,11 +301,11 @@ void GetHttpAsync()
   http_client client(U("http://en.cppreference.com/w/"));
   
   client.request(U("GET")).then([](http_response resp){
-  wcout << U("STATUS : ") << resp.status_code() << endl;
-  wcout << "content-type : " << resp.headers().content_type() << endl;
+  cout << U("STATUS : ") << resp.status_code() << endl;
+  cout << "content-type : " << resp.headers().content_type() << endl;
   
   resp.extract_string(true).then([](string_t sBoby){
-  wcout << sBoby << endl;
+  cout << sBoby << endl;
   }).wait();
   
   }).wait();
