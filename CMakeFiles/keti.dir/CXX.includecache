@@ -19,6 +19,14 @@ sql/sql_plugin.h
 /root/mysql-8.0.19/storage/keti/sql/sql_plugin.h
 typelib.h
 /root/mysql-8.0.19/storage/keti/typelib.h
+iostream
+-
+cpprest/http_client.h
+-
+cpprest/filestream.h
+-
+cpprest/http_headers.h
+-
 
 include/compression.h
 sstream

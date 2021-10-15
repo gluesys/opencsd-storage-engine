@@ -100,6 +100,18 @@
 #include "sql/sql_plugin.h"
 #include "typelib.h"
 
+#include <iostream>
+#include <cpprest/http_client.h>
+#include <cpprest/filestream.h>
+#include <cpprest/http_headers.h>
+
+using namespace std;
+using namespace utility; // Common utilities like string conversions
+using namespace web; // Common features like URIs.
+using namespace web::http; // Common HTTP functionality
+using namespace web::http::client; // HTTP client features
+using namespace concurrency::streams; // Asynchronous streams
+
 static handler *keti_create_handler(handlerton *hton, TABLE_SHARE *table,
                                        bool partitioned, MEM_ROOT *mem_root);
 
@@ -274,7 +286,16 @@ int ha_keti::close(void) {
   item_sum.cc, item_sum.cc, sql_acl.cc, sql_insert.cc,
   sql_insert.cc, sql_select.cc, sql_table.cc, sql_udf.cc and sql_update.cc
 */
-
+void GetHttp()
+{
+  http_client client(U("http://10.0.5.101:9090"));
+  auto resp = client.request(U("GET")).get();
+  
+  
+  cout << U("STATUS : ") << resp.status_code() << endl;
+  cout << "content-type : " << resp.headers().content_type() << endl;
+  cout << resp.extract_string(true).get() << endl;
+}
 int ha_keti::write_row(uchar *) {
   DBUG_TRACE;
   /*
@@ -283,6 +304,7 @@ int ha_keti::write_row(uchar *) {
     probably need to do something with 'buf'. We report a success
     here, to pretend that the insert was successful.
   */
+  GetHttp();
   return 0;
 }
 
