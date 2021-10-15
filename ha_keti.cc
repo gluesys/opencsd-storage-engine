@@ -318,13 +318,13 @@ void GetJson()
   http_request req(methods::GET);
   
   client.request(req).then([=](http_response r){
-  wcout << U("STATUS : ") << r.status_code() << endl;
-  wcout << "content-type : " << r.headers().content_type() << endl;
+  cout << U("STATUS : ") << r.status_code() << endl;
+  cout << "content-type : " << r.headers().content_type() << endl;
 
   
   r.extract_json(true).then([](json::value v) {
-  wcout << v.at(U("date")).as_string() << endl;
-  wcout << v.at(U("time")).as_string() << endl;
+  cout << v.at(U("date")).as_string() << endl;
+  cout << v.at(U("time")).as_string() << endl;
   }).wait();
   
   }).wait();
