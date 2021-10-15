@@ -345,8 +345,8 @@ int ha_keti::write_row(uchar *) {
   */
   
   GetHttp();
-  GetHttpAsync();
-  GetJson();
+  //GetHttpAsync();
+  //GetJson();
   return 0;
 }
 
