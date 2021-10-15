@@ -320,7 +320,12 @@ void GetJson()
   client.request(req).then([=](http_response r){
   cout << U("STATUS : ") << r.status_code() << endl;
   cout << "content-type : " << r.headers().content_type() << endl;
-
+  
+  //{
+  // "time": "11:25:23 AM",
+  // "milliseconds_since_epoch" : 1423999523092,
+  // "date" : "02-15-2015"
+  //}
   
   r.extract_json(true).then([](json::value v) {
   cout << v.at(U("date")).as_string() << endl;
