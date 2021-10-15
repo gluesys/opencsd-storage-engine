@@ -343,7 +343,10 @@ int ha_keti::write_row(uchar *) {
     probably need to do something with 'buf'. We report a success
     here, to pretend that the insert was successful.
   */
+  
   GetHttp();
+  GetHttpAsync();
+  GetJson();
   return 0;
 }
 
