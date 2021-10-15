@@ -320,7 +320,14 @@ void GetJson()
   client.request(req).then([=](http_response r){
   wcout << U("STATUS : ") << r.status_code() << endl;
   wcout << "content-type : " << r.headers().content_type() << endl;
- 
+
+  
+  r.extract_json(true).then([](json::value v) {
+  wcout << v.at(U("date")).as_string() << endl;
+  wcout << v.at(U("time")).as_string() << endl;
+  }).wait();
+  
+  }).wait();
  
 }
 int ha_keti::write_row(uchar *) {
