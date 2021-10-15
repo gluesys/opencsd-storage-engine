@@ -313,7 +313,14 @@ void GetHttpAsync()
 }
 void GetJson()
 {
-
+  http_client client(U("http://date.jsontest.com/"));
+  
+  http_request req(methods::GET);
+  
+  client.request(req).then([=](http_response r){
+  wcout << U("STATUS : ") << r.status_code() << endl;
+  wcout << "content-type : " << r.headers().content_type() << endl;
+ 
  
 }
 int ha_keti::write_row(uchar *) {
